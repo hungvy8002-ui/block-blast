@@ -51272,14 +51272,16 @@
                                 var a = cc.instantiate(c.control.view.destroy_pfb);
                                 this.view.configDestroyNode(a, (r - e[r].length / 2) * c.control.block_size + c.control.settings.destroy_pos[1], this.color_idx)
                             }
-                            for (i = 0; i < this.bingo_j.length; i++) {
-                                for (s = this.bingo_j[i],
-                                r = 0; r < e.length; r++)
-                                    e[r][s].setOpacity(0);
-                                n++,
-                                (a = cc.instantiate(c.control.view.destroy_pfb)).angle = -90,
-                                this.view.configDestroyNode(a, (s - e[s].length / 2) * c.control.block_size + c.control.settings.destroy_pos[1], this.color_idx)
-                            }
+                            // Xóa cột bingo từ phải sang trái để tránh lỗi lệch chỉ số
+this.bingo_j.sort((a, b) => b - a);
+for (i = 0; i < this.bingo_j.length; i++) {
+    s = this.bingo_j[i];
+    for (r = 0; r < e.length; r++)
+        e[r][s].setOpacity(0);
+    n++;
+    (a = cc.instantiate(c.control.view.destroy_pfb)).angle = -90;
+    this.view.configDestroyNode(a, (s - e[s].length / 2) * c.control.block_size + c.control.settings.destroy_pos[1], this.color_idx);
+}
                             this.fs_list.map(function(e) {
                                 0 === e.getOpacity() ? t || (t = e.node.position) : (e.setOpacity(255),
                                 e.ori_color_num = o.color_idx)
