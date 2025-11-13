@@ -51272,24 +51272,14 @@
                                 var a = cc.instantiate(c.control.view.destroy_pfb);
                                 this.view.configDestroyNode(a, (r - e[r].length / 2) * c.control.block_size + c.control.settings.destroy_pos[1], this.color_idx)
                             }
-                            // Xóa cột bingo từ phải sang trái để tránh lỗi lệch chỉ số
-this.bingo_j.sort((a, b) => b - a);
-// Xóa tất cả các cột bingo (đã fix hướng cột)
-for (i = 0; i < this.bingo_j.length; i++) {
-    s = e[0].length - 1 - this.bingo_j[i]; // đảo hướng cột
-    for (r = 0; r < e.length; r++) {
-        if (e[r] && e[r][s]) {
-            e[r][s].setOpacity(0);
-        }
-    }
-    n++;
-    (a = cc.instantiate(c.control.view.destroy_pfb)).angle = -90;
-    this.view.configDestroyNode(
-        a,
-        (s - e[0].length / 2) * c.control.block_size + c.control.settings.destroy_pos[1],
-        this.color_idx
-    );
-}
+                            for (i = 0; i < this.bingo_j.length; i++) {
+                                for (s = this.bingo_j[i],
+                                r = 0; r < e.length; r++)
+                                    e[r][s].setOpacity(0);
+                                n++,
+                                (a = cc.instantiate(c.control.view.destroy_pfb)).angle = -90,
+                                this.view.configDestroyNode(a, (s - e[s].length / 2) * c.control.block_size + c.control.settings.destroy_pos[1], this.color_idx)
+                            }
                             this.fs_list.map(function(e) {
                                 0 === e.getOpacity() ? t || (t = e.node.position) : (e.setOpacity(255),
                                 e.ori_color_num = o.color_idx)
@@ -51375,9 +51365,10 @@ for (i = 0; i < this.bingo_j.length; i++) {
                                             t[g][a].getOpacity() <= 0 && (f = !1);
                                         if (f) {
                                             this.bingo_j.push(a);
-                                            for (var b = 0; b < t.length; b++)
+                                            for (var b = 0; b < t.length; b++){
                                                 t[b][a].setColor(this.color_idx);
-                                            t[b][a].setOpacity(150);
+                                                t[b][a].setOpacity(150);
+											}
                                         }
                                     }
                                 }
