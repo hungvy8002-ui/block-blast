@@ -51309,7 +51309,7 @@
                        
 
            
-                        o.prototype.onCheckBlocks = function() {
+                       o.prototype.onCheckBlocks = function() {
     var t = this.view.block_map,
         o = c.control.block_size,
         e = !0,
@@ -51319,12 +51319,20 @@
     this.bingo_j = [];
 
     for (var i = 0; i < this.toy_node.children.length; i++) {
-        for (var r = !1, s = 0; s < t.length; s++)
+        var r = !1;
+        for (var s = 0; s < t.length; s++) {
             for (var a = 0; a < t[0].length; a++) {
                 var h = t[s][a];
-                // ❌ Không còn setOpacity(0) ở đây
+
+                // ✅ Chỉ reset opacity nếu block trống (không phải block thật hoặc preview)
+                if (h.getOpacity() < 10) {
+                    h.setOpacity(0);
+                }
+
+                // Reset lại màu gốc
                 h.setColor(h.ori_color_num);
 
+                // Kiểm tra nếu block "ghost" trùng với vị trí hiện tại
                 if (e) {
                     var l = h.node.convertToNodeSpaceAR(
                         this.toy_node.children[i].convertToWorldSpaceAR(cc.v2(0, 0))
@@ -51340,14 +51348,15 @@
                     }
                 }
             }
-        if (!r) e = !1;
+        }
+        if (!r) e = !1; // ❗ Giữ nguyên dòng này, rất quan trọng
     }
 
     if (e) {
         var p = [],
             u = [];
 
-        // Đánh dấu block được chạm
+        // Đánh dấu khối được chạm
         for (s = 0; s < n.length; s++) {
             var h = n[s];
             if (!h.getOpacity()) {
@@ -51357,7 +51366,7 @@
             }
         }
 
-        // Kiểm tra hàng và cột đầy
+        // Kiểm tra hàng & cột đầy
         for (var _ = 0; _ < n.length; _++) {
             var d = n[_];
             s = d.i;
@@ -51373,7 +51382,7 @@
                     this.bingo_i.push(s);
                     for (var v = 0; v < t[s].length; v++) {
                         t[s][v].setColor(this.color_idx);
-                        var glowIntensity = 1.5; // hiệu ứng sáng
+                        var glowIntensity = 1.5;
                         t[s][v].addGlow(this.color_idx, glowIntensity);
                     }
                 }
@@ -51396,21 +51405,21 @@
         }
     }
 }
+,
+r([p(cc.Node)], o.prototype, "birth_node", void 0),
+r([p(cc.Node)], o.prototype, "toy_node", void 0),
+r([p(cc.Node)], o.prototype, "btn", void 0),
+r([p(cc.Prefab)], o.prototype, "block_sd_pfb", void 0),
+r([l], o)
+}(cc.Component);
+e.default = u,
+cc._RF.pop()
+}
+, {
+    "../control": "control",
+    "../model": "model"
+}],
 
-                        ,
-                        r([p(cc.Node)], o.prototype, "birth_node", void 0),
-                        r([p(cc.Node)], o.prototype, "toy_node", void 0),
-                        r([p(cc.Node)], o.prototype, "btn", void 0),
-                        r([p(cc.Prefab)], o.prototype, "block_sd_pfb", void 0),
-                        r([l], o)
-                    }(cc.Component);
-                    e.default = u,
-                    cc._RF.pop()
-                }
-                , {
-                    "../control": "control",
-                    "../model": "model"
-                }],
                 play_audio: [function(t, o, e) {
                     "use strict";
                     cc._RF.push(o, "59d710ybCtKIK2fWdvSLN7z", "play_audio");
