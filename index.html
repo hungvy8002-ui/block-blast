@@ -51309,117 +51309,90 @@
                        
 
            
-                       o.prototype.onCheckBlocks = function() {
-    var t = this.view.block_map,
-        o = c.control.block_size,
-        e = !0,
-        n = [];
-    this.fs_list = [];
-    this.bingo_i = [];
-    this.bingo_j = [];
-
-    for (var i = 0; i < this.toy_node.children.length; i++) {
-        var r = !1;
-        for (var s = 0; s < t.length; s++) {
-            for (var a = 0; a < t[0].length; a++) {
-                var h = t[s][a];
-
-                // ✅ Chỉ reset opacity nếu block trống (không phải block thật hoặc preview)
-                if (h.getOpacity() < 10) {
-                    h.setOpacity(0);
-                }
-
-                // Reset lại màu gốc
-                h.setColor(h.ori_color_num);
-
-                // Kiểm tra nếu block "ghost" trùng với vị trí hiện tại
-                if (e) {
-                    var l = h.node.convertToNodeSpaceAR(
-                        this.toy_node.children[i].convertToWorldSpaceAR(cc.v2(0, 0))
-                    );
-                    if (
-                        l.x >= -o / 2 &&
-                        l.x < o / 2 &&
-                        l.y >= -o / 2 &&
-                        l.y < o / 2
-                    ) {
-                        if (!h.getOpacity()) r = !0;
-                        n.push(h);
-                    }
-                }
-            }
-        }
-        if (!r) e = !1; // ❗ Giữ nguyên dòng này, rất quan trọng
-    }
-
-    if (e) {
-        var p = [],
-            u = [];
-
-        // Đánh dấu khối được chạm
-        for (s = 0; s < n.length; s++) {
-            var h = n[s];
-            if (!h.getOpacity()) {
-                h.setColor(this.color_idx);
-                h.setOpacity(127);
-                this.fs_list.push(h);
-            }
-        }
-
-        // Kiểm tra hàng & cột đầy
-        for (var _ = 0; _ < n.length; _++) {
-            var d = n[_];
-            s = d.i;
-            a = d.j;
-
-            // --- HÀNG NGANG ---
-            if (-1 === p.indexOf(s)) {
-                p.push(s);
-                var f = !0;
-                for (var y = 0; y < t[s].length; y++)
-                    t[s][y].getOpacity() <= 0 && (f = !1);
-                if (f) {
-                    this.bingo_i.push(s);
-                    for (var v = 0; v < t[s].length; v++) {
-                        t[s][v].setColor(this.color_idx);
-                        var glowIntensity = 1.5;
-                        t[s][v].addGlow(this.color_idx, glowIntensity);
-                    }
-                }
-            }
-
-            // --- CỘT DỌC ---
-            if (-1 === u.indexOf(a)) {
-                u.push(a);
-                f = !0;
-                for (var g = 0; g < t.length; g++)
-                    t[g][a].getOpacity() <= 0 && (f = !1);
-                if (f) {
-                    this.bingo_j.push(a);
-                    for (var b = 0; b < t.length; b++) {
-                        t[b][a].setColor(this.color_idx);
-                        t[b][a].setOpacity(150);
-                    }
-                }
-            }
-        }
+                        o.prototype.onCheckBlocks = function() {
+                            var t = this.view.block_map
+                              , o = c.control.block_size
+                              , e = !0
+                              , n = [];
+                            this.fs_list = [],
+                            this.bingo_i = [],
+                            this.bingo_j = [];
+                            for (var i = 0; i < this.toy_node.children.length; i++) {
+                                for (var r = !1, s = 0; s < t.length; s++)
+                                    for (var a = 0; a < t[0].length; a++)
+                                        if ((h = t[s][a]).getOpacity() < 255 && h.setOpacity(0),
+                                        h.setColor(h.ori_color_num),
+                                        e) {
+                                            var l = h.node.convertToNodeSpaceAR(this.toy_node.children[i].convertToWorldSpaceAR(cc.v2(0, 0)));
+                                            l.x >= -o / 2 && l.x < o / 2 && l.y >= -o / 2 && l.y < o / 2 && (h.getOpacity() || (r = !0),
+                                            n.push(h))
+                                        }
+                                r || (e = !1)
+                            }
+                            if (e) {
+                                var p = []
+                                  , u = [];
+                                for (s = 0; s < n.length; s++) {
+                                    var h;
+                                    (h = n[s]).getOpacity() || (h.setColor(this.color_idx),
+                                    h.setOpacity(127),
+                                    this.fs_list.push(h))
+                                }
+                                for (var _ = 0; _ < n.length; _++) {
+                                    var d = n[_];
+                                    if (s = d.i,
+                                    a = d.j,
+                                    -1 === p.indexOf(s)) {
+                                        p.push(s);
+                                        for (var f = !0, y = 0; y < t[s].length; y++)
+                                            t[s][y].getOpacity() <= 0 && (f = !1);
+                                            if (f) {
+    this.bingo_i.push(s);
+    for (var v = 0; v < t[s].length; v++) {
+        // Set the color of the block
+        t[s][v].setColor(this.color_idx);
+    var glowIntensity = 1.5; // Adjust intensity as needed
+    t[s][v].addGlow(this.color_idx, glowIntensity);
+        // Add glow effect to the block
+      
     }
 }
-,
-r([p(cc.Node)], o.prototype, "birth_node", void 0),
-r([p(cc.Node)], o.prototype, "toy_node", void 0),
-r([p(cc.Node)], o.prototype, "btn", void 0),
-r([p(cc.Prefab)], o.prototype, "block_sd_pfb", void 0),
-r([l], o)
-}(cc.Component);
-e.default = u,
-cc._RF.pop()
-}
-, {
-    "../control": "control",
-    "../model": "model"
-}],
-
+                                    }
+                                    if (-1 === u.indexOf(a)) {
+    u.push(a);
+    f = !0;
+    for (var g = 0; g < t.length; g++) {
+        // nếu là bóng preview (opacity < 255) thì không tính
+        if (t[g][a].getOpacity() < 255) {
+            f = !1;
+            break;
+        }
+    }
+                                        if (f) {
+                                            this.bingo_j.push(a);
+                                            for (var b = 0; b < t.length; b++){
+                                                t[b][a].setColor(this.color_idx);
+                                            t[b][a].setOpacity(150);
+											}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        ,
+                        r([p(cc.Node)], o.prototype, "birth_node", void 0),
+                        r([p(cc.Node)], o.prototype, "toy_node", void 0),
+                        r([p(cc.Node)], o.prototype, "btn", void 0),
+                        r([p(cc.Prefab)], o.prototype, "block_sd_pfb", void 0),
+                        r([l], o)
+                    }(cc.Component);
+                    e.default = u,
+                    cc._RF.pop()
+                }
+                , {
+                    "../control": "control",
+                    "../model": "model"
+                }],
                 play_audio: [function(t, o, e) {
                     "use strict";
                     cc._RF.push(o, "59d710ybCtKIK2fWdvSLN7z", "play_audio");
