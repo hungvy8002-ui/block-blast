@@ -51309,71 +51309,105 @@
                        
 
            
-                        o.prototype.onCheckBlocks = function() {
-                            var t = this.view.block_map
-                              , o = c.control.block_size
-                              , e = !0
-                              , n = [];
-                            this.fs_list = [],
-                            this.bingo_i = [],
-                            this.bingo_j = [];
-                            for (var i = 0; i < this.toy_node.children.length; i++) {
-                                for (var r = !1, s = 0; s < t.length; s++)
-                                    for (var a = 0; a < t[0].length; a++)
-                                        if ((h = t[s][a]).getOpacity() < 255 && h.setOpacity(0),
-                                        h.setColor(h.ori_color_num),
-                                        e) {
-                                            var l = h.node.convertToNodeSpaceAR(this.toy_node.children[i].convertToWorldSpaceAR(cc.v2(0, 0)));
-                                            l.x >= -o / 2 && l.x < o / 2 && l.y >= -o / 2 && l.y < o / 2 && (h.getOpacity() || (r = !0),
-                                            n.push(h))
-                                        }
-                                r || (e = !1)
-                            }
-                            if (e) {
-                                var p = []
-                                  , u = [];
-                                for (s = 0; s < n.length; s++) {
-                                    var h;
-                                    (h = n[s]).getOpacity() || (h.setColor(this.color_idx),
-                                    h.setOpacity(127),
-                                    this.fs_list.push(h))
-                                }
-                                for (var _ = 0; _ < n.length; _++) {
-                                    var d = n[_];
-                                    if (s = d.i,
-                                    a = d.j,
-                                    -1 === p.indexOf(s)) {
-                                        p.push(s);
-                                        for (var f = !0, y = 0; y < t[s].length; y++)
-                                            t[s][y].getOpacity() <= 0 && (f = !1);
-                                            if (f) {
-    this.bingo_i.push(s);
-    for (var v = 0; v < t[s].length; v++) {
-        // Set the color of the block
-        t[s][v].setColor(this.color_idx);
-    var glowIntensity = 1.5; // Adjust intensity as needed
-    t[s][v].addGlow(this.color_idx, glowIntensity);
-        // Add glow effect to the block
-      
+                       o.prototype.onCheckBlocks = function() {
+    var t = this.view.block_map,
+        o = c.control.block_size,
+        e = true,
+        n = [];
+
+    this.fs_list = [];
+    this.bingo_i = [];
+    this.bingo_j = [];
+
+    // --- Kiểm tra khớp block ---
+    for (var i = 0; i < this.toy_node.children.length; i++) {
+        var r = false;
+        for (var s = 0; s < t.length; s++) {
+            for (var a = 0; a < t[0].length; a++) {
+                var h = t[s][a];
+                if (h.getOpacity() < 255) h.setOpacity(0);
+                h.setColor(h.ori_color_num);
+
+                if (e) {
+                    var l = h.node.convertToNodeSpaceAR(
+                        this.toy_node.children[i].convertToWorldSpaceAR(cc.v2(0, 0))
+                    );
+                    if (l.x >= -o / 2 && l.x < o / 2 && l.y >= -o / 2 && l.y < o / 2) {
+                        if (!h.getOpacity()) r = true;
+                        n.push(h);
+                    }
+                }
+            }
+        }
+        if (!r) e = false;
     }
-}
-                                    }
-                                    if (-1 === u.indexOf(a)) {
-                                        u.push(a),
-                                        f = !0;
-                                        for (var g = 0; g < t.length; g++)
-                                            t[g][a].getOpacity() <= 0 && (f = !1);
-                                        if (f) {
-                                            this.bingo_j.push(a);
-                                            for (var b = 0; b < t.length; b++){
-                                                t[b][a].setColor(this.color_idx);
-                                                t[b][a].setOpacity(150);
-											}
-                                        }
-                                    }
-                                }
-                            }
-                        }
+
+    // --- Nếu tất cả khớp ---
+    if (e) {
+        var checkedRows = [];
+        var checkedCols = [];
+
+        // Đổi màu block đang khớp
+        for (var s = 0; s < n.length; s++) {
+            var h = n[s];
+            if (!h.getOpacity()) {
+                h.setColor(this.color_idx);
+                h.setOpacity(127);
+                this.fs_list.push(h);
+            }
+        }
+
+        // --- Kiểm tra từng block trong danh sách khớp ---
+        for (var _ = 0; _ < n.length; _++) {
+            var d = n[_];
+            var row = d.i;
+            var col = d.j;
+
+            // ----- KIỂM TRA HÀNG -----
+            if (checkedRows.indexOf(row) === -1) {
+                checkedRows.push(row);
+                let fullRow = true;
+                for (let x = 0; x < t[row].length; x++) {
+                    if (t[row][x].getOpacity() <= 0) {
+                        fullRow = false;
+                        break;
+                    }
+                }
+                if (fullRow) {
+                    this.bingo_i.push(row);
+                    for (let x = 0; x < t[row].length; x++) {
+                        t[row][x].setColor(this.color_idx);
+                        t[row][x].setOpacity(150);
+                        // Nếu bạn có hiệu ứng glow thì thêm ở đây
+                        // if (t[row][x].addGlow) t[row][x].addGlow(this.color_idx, 1.5);
+                    }
+                }
+            }
+
+            // ----- KIỂM TRA CỘT -----
+            if (checkedCols.indexOf(col) === -1) {
+                checkedCols.push(col);
+                let fullCol = true;
+                for (let y = 0; y < t.length; y++) {
+                    if (t[y][col].getOpacity() <= 0) {
+                        fullCol = false;
+                        break;
+                    }
+                }
+                if (fullCol) {
+                    this.bingo_j.push(col);
+                    for (let y = 0; y < t.length; y++) {
+                        t[y][col].setColor(this.color_idx);
+                        t[y][col].setOpacity(150);
+                        // Nếu bạn có glow: 
+                        // if (t[y][col].addGlow) t[y][col].addGlow(this.color_idx, 1.5);
+                    }
+                }
+            }
+        }
+    }
+};
+
                         ,
                         r([p(cc.Node)], o.prototype, "birth_node", void 0),
                         r([p(cc.Node)], o.prototype, "toy_node", void 0),
