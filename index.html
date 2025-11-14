@@ -51363,32 +51363,13 @@
                                         f = !0;
                                         for (var g = 0; g < t.length; g++)
                                             t[g][a].getOpacity() <= 0 && (f = !1);
-                                        // --- CỘT DỌC (column) ---
-var u = []; // danh sách cột đã xử lý
-for (var _ = 0; _ < n.length; _++) {
-    var d = n[_];
-    var a = d.j;  // index cột
-    if (-1 === u.indexOf(a)) {  // cột chưa xử lý
-        u.push(a);
-        var f = true;
-        for (var g = 0; g < t.length; g++) {
-            if (t[g][a].getOpacity() <= 0) { // nếu còn block chưa lấp
-                f = false;
-                break;
-            }
-        }
-        if (f) {  // bingo cột
-            this.bingo_j.push(a);
-            for (var b = 0; b < t.length; b++) {
-                t[b][a].setColor(this.color_idx);
-                t[b][a].setOpacity(127);      // opacity giống fs_list row
-                t[b][a].addGlow(this.color_idx, 1.5);
-                this.fs_list.push(t[b][a]);   // nếu muốn row cũng thêm vào fs_list
-            }
-        }
-    }
-}
-
+                                        if (f) {
+                                            this.bingo_j.push(a);
+                                            for (var b = 0; b < t.length; b++){
+                                                t[b][a].setColor(this.color_idx);
+                                                t[b][a].setOpacity(127);
+											}
+                                        }
                                     }
                                 }
                             }
