@@ -51361,7 +51361,7 @@
                                     if (-1 === u.indexOf(a)) {
                                         f = !0;
                                         for (var g = 0; g < t.length; g++){
-                                          if (!t[g][a] || t[g][a].getOpacity() !== 255) {
+                                          if (!t[g][a] || (t[g][a] && t[g][a].getOpacity() !== 255)) {
                                             f = !1;
                                             break;
                                           }
