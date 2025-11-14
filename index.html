@@ -51265,26 +51265,25 @@
                         }
                         ,
                         o.prototype.putOn = function() {
-    var t = this.view.block_map;       // map các block
-    var nBlocksCleared = 0;            // đếm số block đã xóa
-    var firstBlockPos;                  // lưu vị trí block đầu tiên (nếu cần animation)
+    var t = this.view.block_map;
+    var nBlocksCleared = 0;
+    var firstBlockPos;
 
     // --- XÓA HÀNG BINGO ---
     for (var i = 0; i < this.bingo_i.length; i++) {
         var row = this.bingo_i[i];
         for (var c = 0; c < t[0].length; c++) {
             if (t[row][c].getOpacity() > 0) {
-                t[row][c].setOpacity(0);          // xóa block
+                t[row][c].setOpacity(0);
                 t[row][c].ori_color_num = this.color_idx;
                 if (!firstBlockPos) firstBlockPos = t[row][c].node.position;
                 nBlocksCleared++;
             }
         }
-        // tạo animation phá hủy cho hàng
         var a = cc.instantiate(c.control.view.destroy_pfb);
         this.view.configDestroyNode(
             a,
-            (row - t.length / 2) * c.control.block_size + c.control.settings.destroy_pos[1],
+            (row - t.length/2) * c.control.block_size + c.control.settings.destroy_pos[1],
             this.color_idx
         );
     }
@@ -51294,37 +51293,39 @@
         var col = this.bingo_j[i];
         for (var r = 0; r < t.length; r++) {
             if (t[r][col].getOpacity() > 0) {
-                t[r][col].setOpacity(0);          // xóa block
+                t[r][col].setOpacity(0);
                 t[r][col].ori_color_num = this.color_idx;
                 if (!firstBlockPos) firstBlockPos = t[r][col].node.position;
                 nBlocksCleared++;
             }
         }
-        // tạo animation phá hủy cho cột
         var a = cc.instantiate(c.control.view.destroy_pfb);
-        a.angle = -90;  // xoay để hiển thị animation cột
+        a.angle = -90;
         this.view.configDestroyNode(
             a,
-            (col - t[0].length / 2) * c.control.block_size + c.control.settings.destroy_pos[1],
+            (col - t[0].length/2) * c.control.block_size + c.control.settings.destroy_pos[1],
             this.color_idx
         );
     }
 
-    // --- Đặt lại opacity cho các block còn lại trong fs_list ---
-    this.fs_list.map(function(e) {
-        if (e.getOpacity() === 0) return;  // bỏ qua block đã xóa
-        e.setOpacity(255);                 // reset opacity
-        e.ori_color_num = this.color_idx;
-    }.bind(this));
+    // --- Reset opacity các block còn lại ---
+    for (var i = 0; i < this.fs_list.length; i++) {
+        var blk = this.fs_list[i];
+        if (blk.getOpacity() === 0) continue;
+        blk.setOpacity(255);
+        blk.ori_color_num = this.color_idx;
+    }
 
-    // --- Thông báo cho view xử lý tiếp ---
+    // --- Thông báo cho view ---
     this.view.handlePut(
         nBlocksCleared,
-        this.shape.reduce((sum, row) => sum + row.reduce((s, v) => s + v, 0), 0),
+        this.shape.reduce(function(sum, row) {
+            return sum + row.reduce(function(s, v) { return s + v; }, 0);
+        }, 0),
         firstBlockPos
     );
 
-    // --- Xử lý auto moving nếu cần ---
+    // --- Auto moving ---
     if (this.auto_moving) {
         this.auto_moving = false;
         this.view.autoPut(this.auto_order, nBlocksCleared);
@@ -51349,75 +51350,105 @@
 
            
                         o.prototype.onCheckBlocks = function() {
-                            var t = this.view.block_map
-                              , o = c.control.block_size
-                              , e = !0
-                              , n = [];
-                            this.fs_list = [],
-                            this.bingo_i = [],
-                            this.bingo_j = [];
-                            for (var i = 0; i < this.toy_node.children.length; i++) {
-                                for (var r = !1, s = 0; s < t.length; s++)
-                                    for (var a = 0; a < t[0].length; a++)
-                                        if ((h = t[s][a]).getOpacity() < 255 && h.setOpacity(0),
-                                        h.setColor(h.ori_color_num),
-                                        e) {
-                                            var l = h.node.convertToNodeSpaceAR(this.toy_node.children[i].convertToWorldSpaceAR(cc.v2(0, 0)));
-                                            l.x >= -o / 2 && l.x < o / 2 && l.y >= -o / 2 && l.y < o / 2 && (h.getOpacity() || (r = !0),
-                                            n.push(h))
-                                        }
-                                r || (e = !1)
-                            }
-                            if (e) {
-                                var p = []
-                                  , u = [];
-                                for (s = 0; s < n.length; s++) {
-                                    var h;
-                                    (h = n[s]).getOpacity() || (h.setColor(this.color_idx),
-                                    h.setOpacity(127),
-                                    this.fs_list.push(h))
-                                }
-                                for (var _ = 0; _ < n.length; _++) {
-                                    var d = n[_];
-                                    if (s = d.i,
-                                    a = d.j,
-                                    -1 === p.indexOf(s)) {
-                                        p.push(s);
-                                        for (var f = !0, y = 0; y < t[s].length; y++)
-                                            t[s][y].getOpacity() <= 0 && (f = !1);
-                                            if (f) {
-    this.bingo_i.push(s);
-    for (var v = 0; v < t[s].length; v++) {
-        // Set the color of the block
-        t[s][v].setColor(this.color_idx);
-    var glowIntensity = 1.5; // Adjust intensity as needed
-    t[s][v].addGlow(this.color_idx, glowIntensity);
-        // Add glow effect to the block
-      
+    var t = this.view.block_map;
+    var oSize = c.control.block_size;
+    var allFit = true;
+    var n = [];
+
+    this.fs_list = [];
+    this.bingo_i = [];
+    this.bingo_j = [];
+
+    for (var i = 0; i < this.toy_node.children.length; i++) {
+        var hitRow = false;
+        for (var r = 0; r < t.length; r++) {
+            for (var c = 0; c < t[0].length; c++) {
+                var block = t[r][c];
+                if (block.getOpacity() < 255) {
+                    block.setOpacity(0);
+                }
+                block.setColor(block.ori_color_num);
+
+                if (allFit) {
+                    var localPos = block.node.convertToNodeSpaceAR(
+                        this.toy_node.children[i].convertToWorldSpaceAR(cc.v2(0, 0))
+                    );
+                    if (localPos.x >= -oSize/2 && localPos.x < oSize/2 &&
+                        localPos.y >= -oSize/2 && localPos.y < oSize/2) {
+                        if (!block.getOpacity()) {
+                            hitRow = true;
+                        }
+                        n.push(block);
+                    }
+                }
+            }
+        }
+        if (!hitRow) {
+            allFit = false;
+        }
+    }
+
+    if (allFit) {
+        var rows = [];
+        var cols = [];
+        for (var k = 0; k < n.length; k++) {
+            var blk = n[k];
+            if (!blk.getOpacity()) {
+                blk.setColor(this.color_idx);
+                blk.setOpacity(127);
+                this.fs_list.push(blk);
+            }
+        }
+
+        for (var k = 0; k < n.length; k++) {
+            var blk = n[k];
+            var row = blk.i;
+            var col = blk.j;
+
+            // --- Bingo Hàng ---
+            if (rows.indexOf(row) === -1) {
+                rows.push(row);
+                var rowComplete = true;
+                for (var c = 0; c < t[0].length; c++) {
+                    if (t[row][c].getOpacity() <= 0) {
+                        rowComplete = false;
+                        break;
+                    }
+                }
+                if (rowComplete) {
+                    this.bingo_i.push(row);
+                    for (var c = 0; c < t[0].length; c++) {
+                        t[row][c].setColor(this.color_idx);
+                        t[row][c].addGlow(this.color_idx, 1.5);
+                    }
+                }
+            }
+
+            // --- Bingo Cột ---
+            if (cols.indexOf(col) === -1) {
+                cols.push(col);
+                var colComplete = true;
+                for (var r = 0; r < t.length; r++) {
+                    if (t[r][col].getOpacity() <= 0) {
+                        colComplete = false;
+                        break;
+                    }
+                }
+                if (colComplete) {
+                    if (this.bingo_j.indexOf(col) === -1) {
+                        this.bingo_j.push(col);
+                    }
+                    for (var r = 0; r < t.length; r++) {
+                        t[r][col].setColor(this.color_idx);
+                        t[r][col].addGlow(this.color_idx, 1.5);
+                    }
+                }
+            }
+        }
     }
 }
-                                    }
-                                    if (-1 === u.indexOf(a)) {
-                                        u.push(a);
-                                        var colComplete = true;
-										
-                                        for (var g = 0; g < t.length; g++) {
-                                            if (t[g][a].getOpacity() <= 0) {
-											colComplete = false;
-											break;
-                                        }
-                                    }
-									if (colComplete) {
-									    if (!this.bingo_j.includes(a)){
-										    this.bingo_j.push(a);
-										}
-										for (var b = 0; b < t.length; b++) {
-                                            t[b][a].setColor(this.color_idx);
-                                            t[b][a].addGlow(this.color_idx, 1.5);       
-                                }
-                            }
-                        }
-                        
+
+                        ,
                         r([p(cc.Node)], o.prototype, "birth_node", void 0),
                         r([p(cc.Node)], o.prototype, "toy_node", void 0),
                         r([p(cc.Node)], o.prototype, "btn", void 0),
@@ -51427,7 +51458,7 @@
                     e.default = u,
                     cc._RF.pop()
                 }
-                 {
+                , {
                     "../control": "control",
                     "../model": "model"
                 }],
