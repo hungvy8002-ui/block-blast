@@ -51409,50 +51409,6 @@
         }
     }
 }
-                h.setColor(ctx.color_idx);
-                h.setOpacity(127);
-                ctx.fs_list.push(h);
-            }
-        }
-
-        for (var _ = 0; _ < n.length; _++) {
-            var d = n[_];
-            s = d.i;
-            a = d.j;
-
-            // --- DÒNG NGANG ---
-            if (-1 === p.indexOf(s)) {
-                p.push(s);
-                var f = !0;
-                for (var y = 0; y < t[s].length; y++)
-                    if (t[s][y].getOpacity() <= 0) f = !1;
-                if (f) {
-                    ctx.bingo_i.push(s);
-                    for (var v = 0; v < t[s].length; v++) {
-                        t[s][v].setColor(ctx.color_idx);
-                        var glowIntensity = 1.5;
-                        t[s][v].addGlow(ctx.color_idx, glowIntensity);
-                    }
-                }
-            }
-
-            // --- CỘT DỌC ---
-            if (-1 === u.indexOf(a)) {
-                u.push(a);
-                f = !0;
-                for (var g = 0; g < t.length; g++)
-                    if (t[g][a].getOpacity() <= 0) f = !1;
-                if (f) {
-                    ctx.bingo_j.push(a);
-                    for (var b = 0; b < t.length; b++) {
-                        t[b][a].setColor(ctx.color_idx);
-                        t[b][a].setOpacity(150);
-                    }
-                }
-            }
-        }
-    }
-}
                         ,
                         r([p(cc.Node)], o.prototype, "birth_node", void 0),
                         r([p(cc.Node)], o.prototype, "toy_node", void 0),
