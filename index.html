@@ -51325,7 +51325,6 @@
         for (var row = 0; row < t.length; row++) {
             for (var col = 0; col < t[0].length; col++) {
                 var block = t[row][col];
-                if (block.getOpacity() < 255) block.setOpacity(0);
                 block.setColor(block.ori_color_num);
                 
                 if (allFit) {
@@ -51333,7 +51332,7 @@
                         this.toy_node.children[i].convertToWorldSpaceAR(cc.v2(0, 0))
                     );
                     if (pos.x >= -o/2 && pos.x < o/2 && pos.y >= -o/2 && pos.y < o/2) {
-                        if (!block.getOpacity()) blockHit = true;
+                        if (block.getOpacity() == 255) blockHit = true;
                         n.push(block);
                     }
                 }
