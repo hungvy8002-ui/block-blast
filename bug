@@ -1,0 +1,1 @@
+if(this.bingo_j.length>0){var a=this.bingo_j[0];for(i=0;i<this.row;i++)null!=(t=this.blocks[i][a])&&(n=t.getComponent("block"),this.nd_prgs.getComponent("prgs").addScore(n.score),n.playClear(),this.blocks[i][a]=null);this.bingo_j=[]}
