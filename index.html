@@ -51408,13 +51408,12 @@
                                         }
                                     }
 									if (colComplete) {
-									    if (!this.bingo_j.includes(a)) this.bingo_j.push(a);
+									    if (!this.bingo_j.includes(a)){
+										    this.bingo_j.push(a);
+										}
 										for (var b = 0; b < t.length; b++) {
                                             t[b][a].setColor(this.color_idx);
-                                            t[b][a].addGlow(this.color_idx, 1.5);
-											
-                                        
-                                    
+                                            t[b][a].addGlow(this.color_idx, 1.5);       
                                 }
                             }
                         }
