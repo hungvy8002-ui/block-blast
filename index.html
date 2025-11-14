@@ -51265,33 +51265,72 @@
                         }
                         ,
                         o.prototype.putOn = function() {
-                            for (var t, o = this, e = this.view.block_map, n = 0, i = 0; i < this.bingo_i.length; i++) {
-                                for (var r = this.bingo_i[i], s = 0; s < e[r].length; s++)
-                                    e[r][s].setOpacity(0);
-                                n++;
-                                var a = cc.instantiate(c.control.view.destroy_pfb);
-                                this.view.configDestroyNode(a, (r - e[r].length / 2) * c.control.block_size + c.control.settings.destroy_pos[1], this.color_idx)
-                            }
-                            for (i = 0; i < this.bingo_j.length; i++) {
-                                for (s = this.bingo_j[i],
-                                r = 0; r < e.length; r++)
-                                    e[r][s].setOpacity(0);
-                                n++,
-                                (a = cc.instantiate(c.control.view.destroy_pfb)).angle = -90,
-                                this.view.configDestroyNode(a, (s - e[s].length / 2) * c.control.block_size + c.control.settings.destroy_pos[1], this.color_idx)
-                            }
-                            this.fs_list.map(function(e) {
-                                0 === e.getOpacity() ? t || (t = e.node.position) : (e.setOpacity(255),
-                                e.ori_color_num = o.color_idx)
-                            }),
-                            this.view.handlePut(n, this.shape.reduce(function(t, o) {
-                                return t + o.reduce(function(t, o) {
-                                    return t + o
-                                }, 0)
-                            }, 0), t),
-                            this.auto_moving && (this.auto_moving = !1,
-                            this.view.autoPut(this.auto_order, n))
-                        }
+    var t = this.view.block_map;       // map các block
+    var nBlocksCleared = 0;            // đếm số block đã xóa
+    var firstBlockPos;                  // lưu vị trí block đầu tiên (nếu cần animation)
+
+    // --- XÓA HÀNG BINGO ---
+    for (var i = 0; i < this.bingo_i.length; i++) {
+        var row = this.bingo_i[i];
+        for (var c = 0; c < t[0].length; c++) {
+            if (t[row][c].getOpacity() > 0) {
+                t[row][c].setOpacity(0);          // xóa block
+                t[row][c].ori_color_num = this.color_idx;
+                if (!firstBlockPos) firstBlockPos = t[row][c].node.position;
+                nBlocksCleared++;
+            }
+        }
+        // tạo animation phá hủy cho hàng
+        var a = cc.instantiate(c.control.view.destroy_pfb);
+        this.view.configDestroyNode(
+            a,
+            (row - t.length / 2) * c.control.block_size + c.control.settings.destroy_pos[1],
+            this.color_idx
+        );
+    }
+
+    // --- XÓA CỘT BINGO ---
+    for (var i = 0; i < this.bingo_j.length; i++) {
+        var col = this.bingo_j[i];
+        for (var r = 0; r < t.length; r++) {
+            if (t[r][col].getOpacity() > 0) {
+                t[r][col].setOpacity(0);          // xóa block
+                t[r][col].ori_color_num = this.color_idx;
+                if (!firstBlockPos) firstBlockPos = t[r][col].node.position;
+                nBlocksCleared++;
+            }
+        }
+        // tạo animation phá hủy cho cột
+        var a = cc.instantiate(c.control.view.destroy_pfb);
+        a.angle = -90;  // xoay để hiển thị animation cột
+        this.view.configDestroyNode(
+            a,
+            (col - t[0].length / 2) * c.control.block_size + c.control.settings.destroy_pos[1],
+            this.color_idx
+        );
+    }
+
+    // --- Đặt lại opacity cho các block còn lại trong fs_list ---
+    this.fs_list.map(function(e) {
+        if (e.getOpacity() === 0) return;  // bỏ qua block đã xóa
+        e.setOpacity(255);                 // reset opacity
+        e.ori_color_num = this.color_idx;
+    }.bind(this));
+
+    // --- Thông báo cho view xử lý tiếp ---
+    this.view.handlePut(
+        nBlocksCleared,
+        this.shape.reduce((sum, row) => sum + row.reduce((s, v) => s + v, 0), 0),
+        firstBlockPos
+    );
+
+    // --- Xử lý auto moving nếu cần ---
+    if (this.auto_moving) {
+        this.auto_moving = false;
+        this.view.autoPut(this.auto_order, nBlocksCleared);
+    }
+}
+
                         ,
                         o.prototype.cancle = function() {
                             for (var t = this.view.block_map, o = 0; o < t.length; o++)
@@ -51360,17 +51399,21 @@
                                     }
                                     if (-1 === u.indexOf(a)) {
                                         u.push(a),
-                                        f = !0;
-                                        for (var g = 0; g < t.length; g++)
-                                            t[g][a].getOpacity() <= 0 && (f = !1);
-                                        if (f) {
-                                            this.bingo_j.push(a);
-                                            for (var b = 0; b < t.length; b++){
-                                                t[b][a].setColor(this.color_idx);
-                                                t[b][a].setOpacity(127);
-											}
+                                        var colComplete = true;
+                                        for (var g = 0; g < t.length; g++) {
+                                            if (t[g][a].getOpacity() <= 0) {
+											colComplete = false
+											break;
                                         }
                                     }
+									if (colComplete) {
+									    if (!this.bingo_j.includes(a)) this.bingo_j.push(a);
+										for (var b = 0; b < t.length; b++) {
+                                            t[b][a].setColor(this.color_idx);
+                                            t[b][a].addGlow(this.color_idx, 1.5);
+											
+                                        
+                                    
                                 }
                             }
                         }
