@@ -51315,9 +51315,24 @@
     var allFit = true;                  // flag kiểm tra toy_node chạm đúng vị trí
     var n = [];                          // danh sách block trúng toy_node
 
+    // reset fs_list / bingo lists
     this.fs_list = [];
     this.bingo_i = [];                   // hàng bingo
     this.bingo_j = [];                   // cột bingo
+
+    // === RESET NHẸ: đặt lại màu & processed cho toàn board một lần (không làm thay đổi opacity) ===
+    // (chỉ gọi 1 lần ở đầu hàm, tránh gọi trong vòng toy_node.children)
+    for (var rr = 0; rr < t.length; rr++) {
+        for (var cc = 0; cc < t[0].length; cc++) {
+            var blk = t[rr][cc];
+            // trả về màu gốc (không xóa opacity hoặc glow nếu game có cách riêng)
+            if (typeof blk.ori_color_num !== "undefined") {
+                blk.setColor(blk.ori_color_num);
+            }
+            // reset flag processed (để tránh double-processing)
+            blk.processed = false;
+        }
+    }
 
     // --- 1. Lọc các block trúng toy_node ---
     for (var i = 0; i < this.toy_node.children.length; i++) {
@@ -51325,13 +51340,16 @@
         for (var row = 0; row < t.length; row++) {
             for (var col = 0; col < t[0].length; col++) {
                 var block = t[row][col];
-                block.setColor(block.ori_color_num);
-                
+
+                // **KHÔNG được reset màu tại đây** (đã reset 1 lần ở trên)
+                // block.setColor(block.ori_color_num); // <-- removed
+
                 if (allFit) {
                     var pos = block.node.convertToNodeSpaceAR(
                         this.toy_node.children[i].convertToWorldSpaceAR(cc.v2(0, 0))
                     );
                     if (pos.x >= -o/2 && pos.x < o/2 && pos.y >= -o/2 && pos.y < o/2) {
+                        // nếu ô đang có block thật (opacity == 255) thì coi là chỗ bị chiếm
                         if (block.getOpacity() == 255) blockHit = true;
                         n.push(block);
                     }
@@ -51351,7 +51369,7 @@
     for (var idx = 0; idx < n.length; idx++) {
         var block = n[idx];
 
-        // đánh dấu block chưa xử lý bingo
+        // ensure processed exists (đã reset ở trên nhưng an toàn)
         if (block.processed === undefined) block.processed = false;
 
         var row = block.i;
@@ -51374,7 +51392,7 @@
                     if (!b.processed) {
                         b.setColor(this.color_idx);
                         b.setOpacity(127);
-                        b.addGlow(this.color_idx, 1.5);
+                        if (typeof b.addGlow === "function") b.addGlow(this.color_idx, 1.5);
                         this.fs_list.push(b);
                         b.processed = true;
                     }
@@ -51399,7 +51417,7 @@
                     if (!b.processed) {
                         b.setColor(this.color_idx);
                         b.setOpacity(127);
-                        b.addGlow(this.color_idx, 1.5);
+                        if (typeof b.addGlow === "function") b.addGlow(this.color_idx, 1.5);
                         this.fs_list.push(b);
                         b.processed = true;
                     }
@@ -51408,6 +51426,7 @@
         }
     }
 }
+
                         ,
                         r([p(cc.Node)], o.prototype, "birth_node", void 0),
                         r([p(cc.Node)], o.prototype, "toy_node", void 0),
