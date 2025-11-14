@@ -51310,123 +51310,89 @@
 
            
                         o.prototype.onCheckBlocks = function() {
-    var t = this.view.block_map;        // mảng 2D [row][col] block
-    var o = c.control.block_size;       // kích thước block
-    var allFit = true;                  // flag kiểm tra toy_node chạm đúng vị trí
-    var n = [];                          // danh sách block trúng toy_node
-
-    // reset fs_list / bingo lists
-    this.fs_list = [];
-    this.bingo_i = [];                   // hàng bingo
-    this.bingo_j = [];                   // cột bingo
-
-    // === RESET NHẸ: đặt lại màu & processed cho toàn board một lần (không làm thay đổi opacity) ===
-    // (chỉ gọi 1 lần ở đầu hàm, tránh gọi trong vòng toy_node.children)
-    for (var rr = 0; rr < t.length; rr++) {
-        for (var cc = 0; cc < t[0].length; cc++) {
-            var blk = t[rr][cc];
-            // trả về màu gốc (không xóa opacity hoặc glow nếu game có cách riêng)
-            if (typeof blk.ori_color_num !== "undefined") {
-                blk.setColor(blk.ori_color_num);
-            }
-            // reset flag processed (để tránh double-processing)
-            blk.processed = false;
-        }
+                            var t = this.view.block_map
+                              , o = c.control.block_size
+                              , e = !0
+                              , n = [];
+                            this.fs_list = [],
+                            this.bingo_i = [],
+                            this.bingo_j = [];
+                            for (var i = 0; i < this.toy_node.children.length; i++) {
+                                for (var r = !1, s = 0; s < t.length; s++)
+                                    for (var a = 0; a < t[0].length; a++)
+                                        if ((h = t[s][a]).getOpacity() < 255 && h.setOpacity(0),
+                                        h.setColor(h.ori_color_num),
+                                        e) {
+                                            var l = h.node.convertToNodeSpaceAR(this.toy_node.children[i].convertToWorldSpaceAR(cc.v2(0, 0)));
+                                            l.x >= -o / 2 && l.x < o / 2 && l.y >= -o / 2 && l.y < o / 2 && (h.getOpacity() || (r = !0),
+                                            n.push(h))
+                                        }
+                                r || (e = !1)
+                            }
+                            if (e) {
+                                var p = []
+                                  , u = [];
+                                for (s = 0; s < n.length; s++) {
+                                    var h;
+                                    (h = n[s]).getOpacity() || (h.setColor(this.color_idx),
+                                    h.setOpacity(127),
+                                    this.fs_list.push(h))
+                                }
+                                for (var _ = 0; _ < n.length; _++) {
+                                    var d = n[_];
+                                    if (s = d.i,
+                                    a = d.j,
+                                    -1 === p.indexOf(s)) {
+                                        p.push(s);
+                                        for (var f = !0, y = 0; y < t[s].length; y++)
+                                            t[s][y].getOpacity() <= 0 && (f = !1);
+                                            if (f) {
+    this.bingo_i.push(s);
+    for (var v = 0; v < t[s].length; v++) {
+        // Set the color of the block
+        t[s][v].setColor(this.color_idx);
+    var glowIntensity = 1.5; // Adjust intensity as needed
+    t[s][v].addGlow(this.color_idx, glowIntensity);
+        // Add glow effect to the block
+      
     }
-
-    // --- 1. Lọc các block trúng toy_node ---
-    for (var i = 0; i < this.toy_node.children.length; i++) {
-        var blockHit = false;
-        for (var row = 0; row < t.length; row++) {
-            for (var col = 0; col < t[0].length; col++) {
-                var block = t[row][col];
-
-                // **KHÔNG được reset màu tại đây** (đã reset 1 lần ở trên)
-                // block.setColor(block.ori_color_num); // <-- removed
-
-                if (allFit) {
-                    var pos = block.node.convertToNodeSpaceAR(
-                        this.toy_node.children[i].convertToWorldSpaceAR(cc.v2(0, 0))
-                    );
-                    if (pos.x >= -o/2 && pos.x < o/2 && pos.y >= -o/2 && pos.y < o/2) {
-                        // nếu ô đang có block thật (opacity == 255) thì coi là chỗ bị chiếm
-                        if (block.getOpacity() == 255) blockHit = true;
-                        n.push(block);
-                    }
-                }
+}
+                                    }
+                                    if (-1 === u.indexOf(a)) {
+                                        u.push(a),
+                                        f = !0;
+                                        for (var g = 0; g < t.length; g++)
+                                            t[g][a].getOpacity() <= 0 && (f = !1);
+                                        // --- CỘT DỌC (column) ---
+var u = []; // danh sách cột đã xử lý
+for (var _ = 0; _ < n.length; _++) {
+    var d = n[_];
+    var a = d.j;  // index cột
+    if (-1 === u.indexOf(a)) {  // cột chưa xử lý
+        u.push(a);
+        var f = true;
+        for (var g = 0; g < t.length; g++) {
+            if (t[g][a].getOpacity() <= 0) { // nếu còn block chưa lấp
+                f = false;
+                break;
             }
         }
-        if (!blockHit) allFit = false;
-    }
-
-    if (!allFit) return; // nếu không tất cả toy_node đúng vị trí thì thôi
-
-    // --- 2. Chuẩn bị các cột/hàng đã xử lý ---
-    var processedRows = [];
-    var processedCols = [];
-    
-    // --- 3. Xử lý từng block trong danh sách n ---
-    for (var idx = 0; idx < n.length; idx++) {
-        var block = n[idx];
-
-        // ensure processed exists (đã reset ở trên nhưng an toàn)
-        if (block.processed === undefined) block.processed = false;
-
-        var row = block.i;
-        var col = block.j;
-
-        // --- Row bingo ---
-        if (processedRows.indexOf(row) === -1) {
-            processedRows.push(row);
-            var rowBingo = true;
-            for (var c = 0; c < t[row].length; c++) {
-                if (t[row][c].getOpacity() <= 0) {
-                    rowBingo = false;
-                    break;
-                }
-            }
-            if (rowBingo) {
-                this.bingo_i.push(row);
-                for (var c = 0; c < t[row].length; c++) {
-                    var b = t[row][c];
-                    if (!b.processed) {
-                        b.setColor(this.color_idx);
-                        b.setOpacity(127);
-                        if (typeof b.addGlow === "function") b.addGlow(this.color_idx, 1.5);
-                        this.fs_list.push(b);
-                        b.processed = true;
-                    }
-                }
-            }
-        }
-
-        // --- Column bingo ---
-        if (processedCols.indexOf(col) === -1) {
-            processedCols.push(col);
-            var colBingo = true;
-            for (var r = 0; r < t.length; r++) {
-                if (t[r][col].getOpacity() <= 0) {
-                    colBingo = false;
-                    break;
-                }
-            }
-            if (colBingo) {
-                this.bingo_j.push(col);
-                for (var r = 0; r < t.length; r++) {
-                    var b = t[r][col];
-                    if (!b.processed) {
-                        b.setColor(this.color_idx);
-                        b.setOpacity(127);
-                        if (typeof b.addGlow === "function") b.addGlow(this.color_idx, 1.5);
-                        this.fs_list.push(b);
-                        b.processed = true;
-                    }
-                }
+        if (f) {  // bingo cột
+            this.bingo_j.push(a);
+            for (var b = 0; b < t.length; b++) {
+                t[b][a].setColor(this.color_idx);
+                t[b][a].setOpacity(127);      // opacity giống fs_list row
+                t[b][a].addGlow(this.color_idx, 1.5);
+                this.fs_list.push(t[b][a]);   // nếu muốn row cũng thêm vào fs_list
             }
         }
     }
 }
 
+                                    }
+                                }
+                            }
+                        }
                         ,
                         r([p(cc.Node)], o.prototype, "birth_node", void 0),
                         r([p(cc.Node)], o.prototype, "toy_node", void 0),
