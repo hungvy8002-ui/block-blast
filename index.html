@@ -51359,8 +51359,7 @@
 }
                                     }
                                     if (-1 === u.indexOf(a)) {
-                                        u.push(a),
-                                        f = !0;
+                                                                                f = !0;
                                         for (var g = 0; g < t.length; g++){
                                           if (t[g][a].getOpacity() < 255) {
                                             f = !1;
@@ -51368,6 +51367,7 @@
                                           }
                                        }
                                         if (f) {
+                                            u.push(a);
                                             this.bingo_j.push(a);
                                             for (var b = 0; b < t.length; b++){
                                                 t[b][a].setColor(this.color_idx);
