@@ -51359,22 +51359,14 @@
 }
                                     }
                                     if (-1 === u.indexOf(a)) {
+                                        u.push(a),
                                         f = !0;
-                                        for (var g = 0; g < 8 ; g++){
-                                          if (!t[g][a] || (t[g][a] && t[g][a].getOpacity() !== 255)) {
-                                            f = !1;
-                                            break;
-                                          }
-                                       }
+                                        for (var g = 0; g < t.length; g++)
+                                            t[g][a].getOpacity() <= 0 && (f = !1);
                                         if (f) {
-                                            u.push(a);
                                             this.bingo_j.push(a);
-                                            for (var b = 0; b < 8 ; b++){
-                                               if (t[b][a]) {
-                                                t[b][a].setColor(this.color_idx);
-                                            t[b][a].setOpacity(150);
-                                           }
-                                          }
+                                            for (var b = 0; b < t.length; b++)
+                                                t[b][a].setColor(this.color_idx), t[b][a].setOpacity(150);
                                         }
                                     }
                                 }
